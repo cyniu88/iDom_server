@@ -425,4 +425,18 @@ int main()
     return 0;
 }
 
-
+//    int * test;
+//    int licznik;
+//    std::cin >> licznik;
+//    test = new int [licznik];
+//    for ( int i =0 ; i<licznik; ++i)
+//    {
+//        test[i]=i+2;
+//    }
+//    for ( int i =0 ; i<licznik; ++i)
+//    {
+//        std::cout << " " << test[i]<<std::endl;
+//    }
+//    std::cin >> licznik;
+//    std::cout << " zwalniam \n";
+//    delete [] test;
