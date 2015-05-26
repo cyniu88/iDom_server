@@ -384,26 +384,6 @@ void *main_thread( void * unused)
 
 int main()
 {
-
-    //    int * test;
-    //    int licznik;
-    //    std::cin >> licznik;
-    //    test = new int [licznik];
-    //    for ( int i =0 ; i<licznik; ++i)
-    //    {
-    //        test[i]=i+2;
-    //    }
-    //    for ( int i =0 ; i<licznik; ++i)
-    //    {
-    //        std::cout << " " << test[i]<<std::endl;
-    //    }
-    //    std::cin >> licznik;
-    //    std::cout << " zwalniam \n";
-    //    delete [] test;
-
-
-
-
     pthread_mutex_init(&C_connection::mutex_buf, NULL);
     pthread_mutex_init(&C_connection::mutex_who, NULL);
     // pthread_mutex_init(&mutex_exit, NULL);
