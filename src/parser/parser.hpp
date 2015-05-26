@@ -34,5 +34,5 @@ struct config{
 
 
 
-konfiguracja parsowanie (const char* file  );
+konfiguracja read_config (const char* file  );
 #endif
