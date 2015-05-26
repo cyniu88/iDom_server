@@ -3,36 +3,36 @@
 #include <string>
 #include <vector>
 
-struct adresy_mac{
+struct addresses_mac{
     std::string name_MAC;
     std::string MAC;
-    bool obecny;
-    int opcja1;
-    int opcja2;
-    int opcja3;
-    int opcja4;
-    int opcja5;
-    int opcja6;
+    bool state;
+    int option1;
+    int option2;
+    int option3;
+    int option4;
+    int option5;
+    int option6;
 };
 
-struct addres_another_servers {
+struct address_another_servers {
     int id;
     std::string SERVER_IP;
 };
 
-struct konfiguracja{
+struct config{
     std::string portRS232;
     std::string BaudRate;
     std::string PORT;
-    std::string SERWER_IP;
+    std::string SERVER_IP;
     int ID_server;
-    std::vector <adresy_mac> A_MAC;
+    std::vector <addresses_mac> A_MAC;
     int v_delay  ;
-    std::vector <addres_another_servers> AAS;
+    std::vector <address_another_servers> AAS;
 
 };
 
 
 
-konfiguracja parsowanie (const char* sciezka_pliku  );
+konfiguracja parsowanie (const char* file  );
 #endif
