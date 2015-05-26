@@ -182,7 +182,7 @@ void *main_thread( void * unused)
     int max_msg = MAX_MSG_LEN*sizeof(float);
     thread_data m_data;
     thread_data node_data; // przekazywanie do watku
-    pthread_t lista_watkow[MAX_CONNECTION]={0,0,0,0,0,0,0,0,0,0};
+    pthread_t thread_array[MAX_CONNECTION]={0,0,0,0,0,0,0,0,0,0};
     pthread_t rs232_thread_id;
   //  int socket_arry[MAX_CONNECTION];   //cyniu
     unsigned int who[2]={FREE, FREE};
@@ -194,7 +194,7 @@ void *main_thread( void * unused)
     std::cout << server_settings.portRS232 << std::endl;
     std::cout << server_settings.BaudRate << std::endl;
     std::cout << server_settings.PORT << std::endl;
-    std::cout << server_settings.SERVER_IP << std::endl;
+    std::cout << server_settings.SERVER_IP << "serwer ip " <<std::endl;
 
     for (u_int i=0;i<server_settings.A_MAC.size();++i){
         std::cout << server_settings.A_MAC[i].name_MAC<<" "<< server_settings.A_MAC[i].MAC<<" " << server_settings.A_MAC[i].option1 <<
@@ -233,10 +233,10 @@ void *main_thread( void * unused)
         node_data.pointer.ptr_buf=bufor;
         node_data.pointer.ptr_who=who;
 
-        pthread_create (&lista_watkow[3], NULL,&f_serv_con_node ,&node_data);
-        std::cout << " watek wystartowal dla NODA MASTERA "<< lista_watkow[3] << std::endl;
+        pthread_create (&thread_array[3], NULL,&f_serv_con_node ,&node_data);
+        std::cout << " watek wystartowal dla NODA MASTERA "<< thread_array[3] << std::endl;
 
-        pthread_detach( lista_watkow[3] );
+        pthread_detach( thread_array[3] );
 
 
     }
@@ -250,7 +250,7 @@ void *main_thread( void * unused)
 
 
     bzero( & server, sizeof( server ) );
-    //bzero( bufor, MAX_MSG_LEN );
+
 
     server.sin_family = AF_INET;
     server.sin_port = htons( SERVER_PORT );
@@ -305,29 +305,29 @@ void *main_thread( void * unused)
             //perror("accept() ERROR");
             continue;
         }
-        for (int licznik_klientow=0; licznik_klientow< MAX_CONNECTION; ++licznik_klientow)
+        for (int con_counter=0; con_counter< MAX_CONNECTION; ++con_counter)
         {
-            //std::cout << "                           iteracja "<<licznik_klientow<<std::endl;
-           // std::cout << "id watku "<< lista_watkow[licznik_klientow]<< std::endl;
-            // std::cout <<  " stan watku " <<  pthread_detach( lista_watkow[licznik_klientow] )<< std::endl;
+            //std::cout << "                           iteracja "<<con_counter<<std::endl;
+           // std::cout << "id watku "<< thread_array[con_counter]<< std::endl;
+            // std::cout <<  " stan watku " <<  pthread_detach( thread_array[con_counter] )<< std::endl;
 
-            if ( lista_watkow[licznik_klientow]==0 || pthread_kill(lista_watkow[licznik_klientow], 0) == ESRCH )
+            if ( thread_array[con_counter]==0 || pthread_kill(thread_array[con_counter], 0) == ESRCH )
 
             {
-                if ( licznik_klientow!=MAX_CONNECTION -1)
+                if ( con_counter!=MAX_CONNECTION -1)
                 {
                     //
-                 //   socket_arry[licznik_klientow]=v_sock_ind;
+                 //   socket_arry[con_counter]=v_sock_ind;
                     m_data.s_client_sock =v_sock_ind;
                     m_data.from=from;
                     m_data.server_settings=&server_settings;
                     m_data.pointer.ptr_buf=bufor;
                     m_data.pointer.ptr_who=who;
 
-                    pthread_create (&lista_watkow[licznik_klientow], NULL,&Server_connectivity_thread,&m_data);
-                    std::cout << " watek wystartowal  "<< lista_watkow[licznik_klientow] << std::endl;
-                    std::cout <<  " taki watek " <<  pthread_detach( lista_watkow[licznik_klientow] )<< std::endl;
-                    pthread_detach( lista_watkow[licznik_klientow] );
+                    pthread_create (&thread_array[con_counter], NULL,&Server_connectivity_thread,&m_data);
+                    std::cout << " watek wystartowal  "<< thread_array[con_counter] << std::endl;
+                    std::cout <<  " taki watek " <<  pthread_detach( thread_array[con_counter] )<< std::endl;
+                    pthread_detach( thread_array[con_counter] );
                     break;
 
                 }
@@ -372,11 +372,11 @@ void *main_thread( void * unused)
     std::cout << " koniec gniazda ma wynik : "<< shutdown( v_socket, SHUT_RDWR );
 
     std::cout << "\n KOOOOONIEC 2222222222222222222222!!!! \n";
-    //    for (int licznik_klientow=0; licznik_klientow< MAX_CONNECTION; ++licznik_klientow)
+    //    for (int con_counter=0; con_counter< MAX_CONNECTION; ++con_counter)
     //    {
-    //        pthread_cancel(lista_watkow[licznik_klientow]);
-    //        pthread_join(lista_watkow[licznik_klientow], NULL );
-    //        shutdown( socket_arry[licznik_klientow], SHUT_RDWR );
+    //        pthread_cancel(thread_array[con_counter]);
+    //        pthread_join(thread_array[con_counter], NULL );
+    //        shutdown( socket_arry[con_counter], SHUT_RDWR );
     //    }
 
     pthread_exit(NULL);
