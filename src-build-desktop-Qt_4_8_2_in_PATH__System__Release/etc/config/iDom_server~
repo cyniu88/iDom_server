@@ -1,0 +1,6 @@
+	USTAWIENIA PORTU RS232
+portRS232:=/dev/ttyAMC0	# port rs232
+BaudRate:=9600			# predkosc polaczeni rs232
+
+	USTAWIENIA POLACZENI A Z INTERNETEM 
+PORT:=8833			# port na jakim łaczy sie program

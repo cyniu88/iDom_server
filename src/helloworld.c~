@@ -1,0 +1,13 @@
+ #include <stdio.h>
+ #include<stdlib>
+ #include<string>
+ int main (void)
+ {   int licznik = 2 ;
+     puts ("Hello World!");
+    puts ("Szanuje Cezarego!");
+    //printf ("teskt printf %i, licznik);
+
+    string s = "Hell! O' world, why won't my c++ code run?\n\n";
+ std::cout << s << std::endl;
+    return 0;
+ } 

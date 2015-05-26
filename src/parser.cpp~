@@ -1,0 +1,59 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include "parser.h"
+
+
+void parsowanie( )
+{
+std::string zawartosc ;
+std::string zmienna ;
+std::string wartosc ;
+std::string adres;
+std::fstream config;
+// konfiguraja baza;
+
+config.open("plik.txt", std::ios::in  );
+    if( config.good() == false )
+    {
+        std::cout << "Brak pliku konfiguracyjnego" << std::endl;
+        return ;
+    }
+
+    while( !config.eof() )
+    {
+        getline (config, zawartosc);
+
+        for (unsigned i=0;  i<zawartosc.length(); ++i)
+        {
+            if ( zawartosc.at(i)==':' && zawartosc.at(i+1)=='=')
+            {   for (int j=i+2;j<zawartosc.length(); ++j )
+                {
+                    if ( zawartosc.at(j)==' '){
+                       break;
+                    }
+                     wartosc.push_back(zawartosc.at(j));  // wartosc zmiennej
+                }
+
+                std::cout << std::endl;
+                break;
+            }
+	      if (zawartosc.at(i)!=' ')
+            {
+            zmienna.push_back(zawartosc.at(i));  // zmienna
+            }
+        }
+        
+        if (zmienna == "portrs232")
+        {
+            adres = wartosc;
+        }
+
+        zmienna = wartosc = "";
+    }
+
+    config.close();
+    std::cout << " adres portu to " << adres << std::endl;
+
+return ;
+}

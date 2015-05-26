@@ -1,0 +1,140 @@
+//============================================================================
+// Name        : tablica.cpp
+// Author      : 
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+#include <stdio.h>
+#include <stdlib.h>
+#include <fstream>
+#include <iostream>
+
+#define PLIK "p.jpg"
+#define PLIK2 "b.jpg"
+#define dl 50
+#define sze 50
+
+using namespace std;
+
+fstream pliczek , pliczek2;
+//fpos_t dlugosc;
+
+int x = dl - 1;
+int y = sze -1;
+
+
+
+int main() {
+	std::cout << "witaj  cyniu w nowej wersji " << std::endl; // prints !!!Hello World!!!
+	 
+  char tablica[sze][dl];
+
+	for (int j=0;j<dl;++j)
+	{
+		for (int i=0;i<sze;++i)
+		{
+			if (j-25 >= (i-25)*(i-25) || i == 0 || j == 0 || i == y || j == x || i-25 >= (j-25)*(j-25) || (j==i && i < 25))
+			{
+			tablica[j][i]='*';
+		}
+		else
+		{
+			tablica [j][i]='.';
+		}
+		}
+	}
+//////////////////////////////////////////////////////////////////////////////
+	for (int j=0; j<dl; ++j)
+		{
+			for (int i=0; i<sze; ++i)
+			{
+				cout << tablica[j][i] << " ";
+			}
+
+			cout << endl;
+		}
+
+
+
+		pliczek2.open(PLIK2,  ios::binary | ios::in | ios::out );
+				if (pliczek2.good() == false)
+				{
+					cout << "nie otwarto pliku \n";
+				}
+				else
+				{  char  dane;
+				   string napis;
+		          int wielkosc_pliku;
+				  cout << pliczek2.tellg() << endl;
+				  pliczek2.seekg( 0, ios_base::end );
+				  wielkosc_pliku =  pliczek2.tellg();
+				  cout << " wielkosc pliku2 " << wielkosc_pliku << endl;
+
+				  if( pliczek2.fail() )  std::cout << "Error! Nie udalo sie przesunac wewnetrznego wskaznika pliku" << endl;
+
+				  pliczek2.seekg(0, ios_base::beg);
+        
+				  for ( int i =  0  ; i< wielkosc_pliku; ++i )
+				  {
+					//pliczek.seekg(i,ios_base::cur);
+				    pliczek2.get(dane);
+				    //tablica_plik [j] = dane;
+				  
+					cout << dane ;
+				  }
+				/*  
+				  while( !pliczek2.eof() )
+				          {
+				              pliczek2.get(dane);
+					  	  	  //getline( pliczek2, napis );
+				              cout << dane ;
+				          }
+   */
+		 cout << endl;
+		 pliczek2.close();
+		}
+				cout << " #################################    plik 2    #####################33\n" << endl << endl;
+		// #########################################################  plik2   ####################
+
+				pliczek.open(PLIK,  ios::binary | ios::in | ios::out );
+						if (pliczek.good() == false)
+						{
+							cout << "nie otwarto pliku \n";
+						}
+						else
+						{  char  dane;
+						   string napis;
+				          int wielkosc_pliku;
+						  cout << pliczek.tellg() << endl;
+						  pliczek.seekg( 0, ios_base::end );
+						  wielkosc_pliku =  pliczek.tellg();
+						  cout << " wielkosc pliku " << wielkosc_pliku << endl;
+
+						  if( pliczek.fail() )  std::cout << "Error! Nie udalo sie przesunac wewnetrznego wskaznika pliku" << endl;
+
+						  pliczek.seekg(0, ios_base::beg);
+                   // zapisujemy dane
+
+						//  pliczek.write( &tablica_plik[0], 1000);
+						   for ( int i =0 ; i< wielkosc_pliku; ++i)
+						  {
+							//pliczek.seekg(i,ios_base::cur);
+						    pliczek.get(dane);
+							cout << dane ;
+						  }
+				          
+						/*  while( !pliczek.eof() )
+						          {
+						              pliczek.get(dane);
+							  	  	  //getline( pliczek, napis );
+						              cout << dane ;
+						          }
+						*/
+				 cout << endl;
+				 pliczek.close();
+				}
+ cout <<"koniec\n";
+
+	return 0;
+}

@@ -1,0 +1,14 @@
+#ifndef PARSER_H_
+#define PARSER_H_
+#include <string>
+
+
+extern struct konfiguracja{
+      std::string portRS232;
+    std::string BaudRate;
+    std::string PORT;
+
+};
+
+void parsowanie (  );
+#endif

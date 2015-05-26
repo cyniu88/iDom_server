@@ -1,0 +1,14 @@
+ #include <stdio.h>
+ #include<stdlib.h>
+ #include<string.h>
+ #include<iostream>
+int main (void)
+ {   int licznik = 2 ;
+     puts ("Hello World!");
+    puts ("Szanuje Cezarego!");
+    //printf ("teskt printf %i, licznik);
+
+      
+ std::cout << "Hell! O' world, why won't my c++ code run?\n\n" << std::endl;
+    return 0;
+ } 
