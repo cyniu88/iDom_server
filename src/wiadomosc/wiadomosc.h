@@ -34,9 +34,9 @@ struct s_pointer{
 
 
 struct thread_data{
-    int s_gniazdo_klienta;
+    int s_client_sock;
     struct sockaddr_in from;
-    struct konfiguracja *ustawienia_servera;
+    struct config *server_settings;
     struct s_pointer pointer;
 
 

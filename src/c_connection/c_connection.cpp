@@ -10,7 +10,7 @@ C_connection::C_connection (thread_data  *my_data)
 {
     c_max_msg = MAX_MSG_LEN*sizeof(float);
     c_from= my_data->from;
-    c_socket= my_data->s_gniazdo_klienta;
+    c_socket= my_data->s_client_sock;
     this -> pointer = &my_data->pointer;
     this -> my_data = my_data;
     std::cout << "kostruuuje obiekt do komunikacji  obiekt " <<  std::endl;
@@ -135,20 +135,20 @@ int C_connection::c_analyse()
       if ( c_bufor_tmp[1]== 13 && c_bufor_tmp[2]== 13 &&  c_bufor_tmp[3]== 31  )
     {
 
-        my_data->ustawienia_servera->ID_server = c_bufor_tmp[0];
-        std::cout << "moj nowy id to "<< my_data->ustawienia_servera->ID_server << std::endl;
+        my_data->server_settings->ID_server = c_bufor_tmp[0];
+        std::cout << "moj nowy id to "<< my_data->server_settings->ID_server << std::endl;
          c_set_buf( ok);
     }
     //####################################################
     else if ( c_bufor_tmp[0]==22 && c_bufor_tmp[1]==21 &&  c_bufor_tmp[2]==202 &&  c_bufor_tmp[3]==201)
     {
         c_bufor_tmp[0]=c_bufor_tmp[1] = c_bufor_tmp[2]=c_bufor_tmp[3] =  33 ;
-        c_bufor_tmp[9] = my_data->ustawienia_servera->v_delay ;  // jakie opoznienie w odczytywaniu kto jest na wifi
-        std::cout << " opoznienie perwsze " << my_data->ustawienia_servera->v_delay << std::endl;
+        c_bufor_tmp[9] = my_data->server_settings->v_delay ;  // jakie opoznienie w odczytywaniu kto jest na wifi
+        std::cout << " opoznienie perwsze " << my_data->server_settings->v_delay << std::endl;
         std::cout << " opoznienie " << c_bufor_tmp[9] << std::endl;
-        c_bufor_tmp[7] = my_data->ustawienia_servera->A_MAC.size();;   // ile mamy adresow
+        c_bufor_tmp[7] = my_data->server_settings->A_MAC.size();;   // ile mamy adresow
 
-        for (u_int i =0 ; i < my_data->ustawienia_servera->A_MAC.size(); ++i)
+        for (u_int i =0 ; i < my_data->server_settings->A_MAC.size(); ++i)
         {
             if(( send( c_socket, c_bufor_tmp, c_max_msg, MSG_DONTWAIT ) ) <= 0 )
             {
@@ -167,23 +167,23 @@ int C_connection::c_analyse()
             c_bufor_tmp[2] =0 ;
             c_bufor_tmp[3]=(float)i  ;
 
-            c_bufor_tmp[4] = my_data->ustawienia_servera->A_MAC[i].MAC[0];
-            c_bufor_tmp[5] = my_data->ustawienia_servera->A_MAC[i].MAC[1];
+            c_bufor_tmp[4] = my_data->server_settings->A_MAC[i].MAC[0];
+            c_bufor_tmp[5] = my_data->server_settings->A_MAC[i].MAC[1];
 
-            c_bufor_tmp[6] = my_data->ustawienia_servera->A_MAC[i].MAC[3];
-            c_bufor_tmp[7] = my_data->ustawienia_servera->A_MAC[i].MAC[4];
+            c_bufor_tmp[6] = my_data->server_settings->A_MAC[i].MAC[3];
+            c_bufor_tmp[7] = my_data->server_settings->A_MAC[i].MAC[4];
 
-            c_bufor_tmp[8] = my_data->ustawienia_servera->A_MAC[i].MAC[6];
-            c_bufor_tmp[9] = my_data->ustawienia_servera->A_MAC[i].MAC[7];
+            c_bufor_tmp[8] = my_data->server_settings->A_MAC[i].MAC[6];
+            c_bufor_tmp[9] = my_data->server_settings->A_MAC[i].MAC[7];
 
-            c_bufor_tmp[10] = my_data->ustawienia_servera->A_MAC[i].MAC[9];
-            c_bufor_tmp[11] = my_data->ustawienia_servera->A_MAC[i].MAC[10];
+            c_bufor_tmp[10] = my_data->server_settings->A_MAC[i].MAC[9];
+            c_bufor_tmp[11] = my_data->server_settings->A_MAC[i].MAC[10];
 
-            c_bufor_tmp[12] = my_data->ustawienia_servera->A_MAC[i].MAC[12];
-            c_bufor_tmp[13] = my_data->ustawienia_servera->A_MAC[i].MAC[13];
+            c_bufor_tmp[12] = my_data->server_settings->A_MAC[i].MAC[12];
+            c_bufor_tmp[13] = my_data->server_settings->A_MAC[i].MAC[13];
 
-            c_bufor_tmp[14] = my_data->ustawienia_servera->A_MAC[i].MAC[15];
-            c_bufor_tmp[15] = my_data->ustawienia_servera->A_MAC[i].MAC[16];
+            c_bufor_tmp[14] = my_data->server_settings->A_MAC[i].MAC[15];
+            c_bufor_tmp[15] = my_data->server_settings->A_MAC[i].MAC[16];
 
             std::cout << " podglad bufora " << (char)c_bufor_tmp [4] << " " << (char)c_bufor_tmp[5]<<std::endl;
 
@@ -236,7 +236,7 @@ void C_connection::c_send_recv_MASTER()
             pthread_mutex_unlock(&mutex_buf);
 
             //who[0]= RS232;
-            pointer->ptr_who[0] = my_data->ustawienia_servera->ID_server;
+            pointer->ptr_who[0] = my_data->server_settings->ID_server;
             //who[1]=  pthread_self ();
             pointer->ptr_who[1] =  pthread_self ();
             pthread_mutex_unlock(&mutex_who);
@@ -372,11 +372,11 @@ void C_connection::c_send_recv_RS232()
 void C_connection::start_master ()
 {
 
-    std::cout <<  " w pamieci jest " <<my_data->ustawienia_servera->AAS.size() <<" nodow\n";
-    for (unsigned int i =0 ; i<my_data->ustawienia_servera->AAS.size() ; ++i )
+    std::cout <<  " w pamieci jest " <<my_data->server_settings->AAS.size() <<" nodow\n";
+    for (unsigned int i =0 ; i<my_data->server_settings->AAS.size() ; ++i )
     {
-        std::cout << "  jest ustawien id " <<  my_data->ustawienia_servera->AAS[i].id << std::endl;
-        std::cout << "  jest ustawien ip " <<  my_data->ustawienia_servera->AAS[i].SERVER_IP << std::endl;
+        std::cout << "  jest ustawien id " <<  my_data->server_settings->AAS[i].id << std::endl;
+        std::cout << "  jest ustawien ip " <<  my_data->server_settings->AAS[i].SERVER_IP << std::endl;
     }
         while (1)
         {
@@ -401,7 +401,7 @@ void C_connection::c_recv_send_master()
         usleep(500);
        // std::cout << " sprawdzam czy to do mastera " << pointer->ptr_who[0] <<" \n";
         pthread_mutex_lock(&mutex_who);
-        if (  pointer->ptr_who[0] == my_data->ustawienia_servera->ID_server)
+        if (  pointer->ptr_who[0] == my_data->server_settings->ID_server)
         {
 
             pthread_mutex_lock(&mutex_buf);
@@ -414,7 +414,7 @@ void C_connection::c_recv_send_master()
 
             pointer->ptr_who[0] =  pointer->ptr_who[1] ;//to;
             //who[1]=  pthread_self ();
-            pointer->ptr_who[1] =  my_data->ustawienia_servera->ID_server;
+            pointer->ptr_who[1] =  my_data->server_settings->ID_server;
 
 
             pthread_mutex_unlock(&mutex_buf);

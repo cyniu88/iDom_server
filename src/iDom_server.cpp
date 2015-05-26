@@ -133,7 +133,7 @@ void *Server_connectivity_thread(void *przekaz){
 
     pthread_detach( pthread_self () );
 
-   // std::cout << " przed while  soket " <<my_data->s_gniazdo_klienta << std::endl;
+   // std::cout << " przed while  soket " <<my_data->s_v_socket_klienta << std::endl;
 
     C_connection *client = new C_connection( my_data);
 
@@ -176,9 +176,9 @@ void *Server_connectivity_thread(void *przekaz){
 void *main_thread( void * unused)
 {
 
-    konfiguracja ustawienia_servera;     // strukruta z informacjami z pliku konfigu
-    struct sockaddr_in serwer;
-    int gniazdo;
+    config server_settings;     // strukruta z informacjami z pliku konfigu
+    struct sockaddr_in server;
+    int v_socket;
     int max_msg = MAX_MSG_LEN*sizeof(float);
     thread_data m_data;
     thread_data node_data; // przekazywanie do watku
@@ -188,48 +188,48 @@ void *main_thread( void * unused)
     unsigned int who[2]={FREE, FREE};
     float bufor[ MAX_MSG_LEN ];
     std::cout << "bede parsowac \n";
-    ustawienia_servera  =  parsowanie ( "/etc/config/iDom_server"    );
+    server_settings  =  read_config ( "/etc/config/iDom_server"    );
 
-    std::cout << " ID servera "<< ustawienia_servera.ID_server << std::endl;
-    std::cout << ustawienia_servera.portRS232 << std::endl;
-    std::cout << ustawienia_servera.BaudRate << std::endl;
-    std::cout << ustawienia_servera.PORT << std::endl;
-    std::cout << ustawienia_servera.SERWER_IP << std::endl;
+    std::cout << " ID servera "<< server_settings.ID_server << std::endl;
+    std::cout << server_settings.portRS232 << std::endl;
+    std::cout << server_settings.BaudRate << std::endl;
+    std::cout << server_settings.PORT << std::endl;
+    std::cout << server_settings.SERVER_IP << std::endl;
 
-    for (u_int i=0;i<ustawienia_servera.A_MAC.size();++i){
-        std::cout << ustawienia_servera.A_MAC[i].name_MAC<<" "<< ustawienia_servera.A_MAC[i].MAC<<" " << ustawienia_servera.A_MAC[i].opcja1<<
-                     " " << ustawienia_servera.A_MAC[i].opcja2<<
-                     " " << ustawienia_servera.A_MAC[i].opcja3<<
-                     " " << ustawienia_servera.A_MAC[i].opcja4<<
-                     " " << ustawienia_servera.A_MAC[i].opcja5<<
-                     " " << ustawienia_servera.A_MAC[i].opcja6<<std::endl;
+    for (u_int i=0;i<server_settings.A_MAC.size();++i){
+        std::cout << server_settings.A_MAC[i].name_MAC<<" "<< server_settings.A_MAC[i].MAC<<" " << server_settings.A_MAC[i].option1 <<
+                     " " << server_settings.A_MAC[i].option2<<
+                     " " << server_settings.A_MAC[i].option3<<
+                     " " << server_settings.A_MAC[i].option4<<
+                     " " << server_settings.A_MAC[i].option5<<
+                     " " << server_settings.A_MAC[i].option6<<std::endl;
     }
-    for (u_int i=0;i<ustawienia_servera.AAS.size();++i){
-        std::cout << ustawienia_servera.AAS[i].id<<" "<< ustawienia_servera.AAS[i].SERVER_IP <<std::endl;
+    for (u_int i=0;i<server_settings.AAS.size();++i){
+        std::cout << server_settings.AAS[i].id<<" "<< server_settings.AAS[i].SERVER_IP <<std::endl;
     }
 
     std::cout << " \n";
 
-    // int go = atoi(  ustawienia_servera.BaudRate.c_str());
+    // int go = atoi(  server_settings.BaudRate.c_str());
 
     thread_data_rs232 data_rs232;
-    data_rs232.BaudRate=ustawienia_servera.BaudRate;
-    data_rs232.portRS232=ustawienia_servera.portRS232;
+    data_rs232.BaudRate=server_settings.BaudRate;
+    data_rs232.portRS232=server_settings.portRS232;
     data_rs232.pointer.ptr_buf=bufor;
     data_rs232.pointer.ptr_who=who;
     pthread_create(&rs232_thread_id,NULL,&Send_Recieve_rs232_thread,&data_rs232 );
     std::cout << "-----------------------------------------------\n";
 
-    int SERWER_PORT = atoi(ustawienia_servera.PORT.c_str());
-    ustawienia_servera.SERWER_IP = conv_dns(ustawienia_servera.SERWER_IP);
-    const char *SERWER_IP = ustawienia_servera.SERWER_IP.c_str();
+    int SERVER_PORT = atoi(server_settings.PORT.c_str());
+    server_settings.SERVER_IP = conv_dns(server_settings.SERVER_IP);
+    const char *SERVER_IP = server_settings.SERVER_IP.c_str();
 
-//const char *SERWER_IP = ;
+//const char *server_IP = ;
 
-    if (ustawienia_servera.ID_server == 1001){
+    if (server_settings.ID_server == 1001){
         std::cout << "startuje noda do polaczen z innym \n";
 
-        node_data.ustawienia_servera=&ustawienia_servera;
+        node_data.server_settings=&server_settings;
         node_data.pointer.ptr_buf=bufor;
         node_data.pointer.ptr_who=who;
 
@@ -249,37 +249,37 @@ void *main_thread( void * unused)
 
 
 
-    bzero( & serwer, sizeof( serwer ) );
+    bzero( & server, sizeof( server ) );
     //bzero( bufor, MAX_MSG_LEN );
 
-    serwer.sin_family = AF_INET;
-    serwer.sin_port = htons( SERWER_PORT );
-    if( inet_pton( AF_INET, SERWER_IP, & serwer.sin_addr ) <= 0 )
+    server.sin_family = AF_INET;
+    server.sin_port = htons( SERVER_PORT );
+    if( inet_pton( AF_INET, SERVER_IP, & server.sin_addr ) <= 0 )
     {
         perror( "inet_pton() ERROR" );
         exit( - 1 );
     }
 
-    if(( gniazdo = socket( AF_INET, SOCK_STREAM, 0 ) ) < 0 )
+    if(( v_socket = socket( AF_INET, SOCK_STREAM, 0 ) ) < 0 )
     {
         perror( "socket() ERROR" );
         exit( - 1 );
     }
 
-    if( fcntl( gniazdo, F_SETFL, O_NONBLOCK ) < 0 ) // fcntl()
+    if( fcntl( v_socket, F_SETFL, O_NONBLOCK ) < 0 ) // fcntl()
     {
         perror( "fcntl() ERROR" );
         exit( - 1 );
     }
 
-    socklen_t len = sizeof( serwer );
-    if( bind( gniazdo,( struct sockaddr * ) & serwer, len ) < 0 )
+    socklen_t len = sizeof( server );
+    if( bind( v_socket,( struct sockaddr * ) & server, len ) < 0 )
     {
         perror( "bind() ERROR" );
         exit( - 1 );
     }
 
-    if( listen( gniazdo, MAX_CONNECTION ) < 0 )
+    if( listen( v_socket, MAX_CONNECTION ) < 0 )
     {
         perror( "listen() ERROR" );
         exit( - 1 );
@@ -287,7 +287,7 @@ void *main_thread( void * unused)
     std::cout <<" przed while \n";
 
     struct sockaddr_in from;
-    int gniazdo_clienta = 0;
+    int v_sock_ind = 0;
 
     ///////////////////////////////////////////////////// WHILE ////////////////////////////////////////////////////
 
@@ -300,7 +300,7 @@ void *main_thread( void * unused)
         usleep(100000);
 
 
-        if(( gniazdo_clienta = accept( gniazdo,( struct sockaddr * ) & from, & len ) ) < 0 )
+        if(( v_sock_ind = accept( v_socket,( struct sockaddr * ) & from, & len ) ) < 0 )
         {
             //perror("accept() ERROR");
             continue;
@@ -317,10 +317,10 @@ void *main_thread( void * unused)
                 if ( licznik_klientow!=MAX_CONNECTION -1)
                 {
                     //
-                 //   socket_arry[licznik_klientow]=gniazdo_clienta;
-                    m_data.s_gniazdo_klienta=gniazdo_clienta;
+                 //   socket_arry[licznik_klientow]=v_sock_ind;
+                    m_data.s_client_sock =v_sock_ind;
                     m_data.from=from;
-                    m_data.ustawienia_servera=&ustawienia_servera;
+                    m_data.server_settings=&server_settings;
                     m_data.pointer.ptr_buf=bufor;
                     m_data.pointer.ptr_who=who;
 
@@ -338,7 +338,7 @@ void *main_thread( void * unused)
                     float bufor_tmp[ MAX_MSG_LEN ];
 
 
-                    if(( recv( gniazdo_clienta, bufor_tmp, max_msg, 0 ) ) <= 0 )
+                    if(( recv( v_sock_ind, bufor_tmp, max_msg, 0 ) ) <= 0 )
                     {
                         perror( "recv() ERROR" );
                         break;
@@ -349,12 +349,12 @@ void *main_thread( void * unused)
 
                     }
 
-                    if(( send( gniazdo_clienta, bufor_tmp, max_msg, MSG_DONTWAIT ) ) <= 0 )
+                    if(( send( v_sock_ind, bufor_tmp, max_msg, MSG_DONTWAIT ) ) <= 0 )
                     {
                         perror( "send() ERROR" );
                         break;
                     }
-                    shutdown( gniazdo_clienta, SHUT_RDWR );
+                    shutdown( v_sock_ind, SHUT_RDWR );
                     continue;
 
                 }
@@ -362,14 +362,14 @@ void *main_thread( void * unused)
             }
 
 
-            // shutdown( gniazdo_clienta, SHUT_RDWR );
+            // shutdown( v_sock_ind, SHUT_RDWR );
             //pthread_exit(NULL);
         }
     } // while
 
     std::cout << " KOOOOONIEC !!!! \n";
     sleep(4);
-    std::cout << " koniec gniazda ma wynik : "<< shutdown( gniazdo, SHUT_RDWR );
+    std::cout << " koniec gniazda ma wynik : "<< shutdown( v_socket, SHUT_RDWR );
 
     std::cout << "\n KOOOOONIEC 2222222222222222222222!!!! \n";
     //    for (int licznik_klientow=0; licznik_klientow< MAX_CONNECTION; ++licznik_klientow)

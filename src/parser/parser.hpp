@@ -34,5 +34,5 @@ struct config{
 
 
 
-konfiguracja read_config (const char* file  );
+config read_config (const char* file_path  );
 #endif
