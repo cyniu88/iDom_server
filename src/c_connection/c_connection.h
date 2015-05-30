@@ -17,8 +17,13 @@ public:
 
       thread_data   *my_data;
     int c_socket;
-    float c_bufor_tmp[ MAX_MSG_LEN ];
+    //float c_bufor_tmp[ MAX_MSG_LEN ];
     sockaddr_in c_from;
+
+    union conv{
+        float c_bufor_tmp[ MAX_MSG_LEN ];
+        char char_buf[4*MAX_MSG_LEN];
+    } msg;
 
     int c_max_msg  ;
     static pthread_mutex_t mutex_buf ;// = PTHREAD_MUTEX_INITIALIZER;
