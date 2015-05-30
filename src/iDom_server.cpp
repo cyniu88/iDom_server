@@ -25,6 +25,8 @@
 #include "wiadomosc/wiadomosc.h"
 #include "c_connection/c_connection.h"
 
+
+
 #include "functions/functions.h"
 //#include "global.h"
 
@@ -271,7 +273,12 @@ void *main_thread( void * unused)
         perror( "fcntl() ERROR" );
         exit( - 1 );
     }
-
+    // zgub wkurzający komunikat błędu "address already in use"
+    int yes =1;
+    if( setsockopt( v_socket, SOL_SOCKET, SO_REUSEADDR, & yes, sizeof( int ) ) == - 1 ) {
+            perror( "setsockopt" );
+            exit( 1 );
+        }
     socklen_t len = sizeof( server );
     if( bind( v_socket,( struct sockaddr * ) & server, len ) < 0 )
     {

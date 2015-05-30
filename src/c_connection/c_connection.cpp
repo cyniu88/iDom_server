@@ -37,7 +37,7 @@ C_connection::~C_connection()
 
 int C_connection::c_send(int para)
 {
-    if(( send( c_socket, c_bufor_tmp, c_max_msg, para ) ) <= 0 )
+    if(( send( c_socket, msg.char_buf/*c_bufor_tmp*/, c_max_msg, para ) ) <= 0 )
     {
         //perror( "send() ERROR" );
         return -1;
@@ -54,15 +54,15 @@ int C_connection::c_send(std::string command)
 
         for (int i =0 ; i < MAX_MSG_LEN ; i=i+2 )
         {
-            c_bufor_tmp[i]= 1 ;
+            msg.c_bufor_tmp[i]= 1 ;
         }
         for (int i =1 ; i < MAX_MSG_LEN ; i=i+2 )
         {
-            c_bufor_tmp[i]= 0 ;
+            msg.c_bufor_tmp[i]= 0 ;
 
         }
     }
-    if(( send( c_socket, c_bufor_tmp, c_max_msg, 0 ) ) <= 0 )
+    if(( send( c_socket, msg.char_buf /*c_bufor_tmp*/, c_max_msg, 0 ) ) <= 0 )
     {
         //perror( "send() ERROR" );
         return -1;
@@ -72,24 +72,28 @@ int C_connection::c_send(std::string command)
 
 int C_connection::c_recv(int para)
 {
-    if(( recv( c_socket, c_bufor_tmp, c_max_msg, para ) ) <= 0 )
+    if(( recv( c_socket, msg.char_buf /*c_bufor_tmp*/, c_max_msg, para ) ) <= 0 )
     {
         //perror( "recv() ERROR" );
         return -1;
+    }
+    for (int i =0 ; i < MAX_MSG_LEN ; ++i)
+    {
+        std::cout << " " << msg.c_bufor_tmp[i] << " " ;
     }
     return 0;
 }
 
 float C_connection::c_return(int iterator)
 {
-    return c_bufor_tmp[iterator];
+    return msg.c_bufor_tmp[iterator];
 }
 
 void C_connection::c_get(float buffor, int i)
 {
     //    for (int i =0 ; i < MAX_MSG_LEN ; ++i )
     //    {
-    c_bufor_tmp[i]= buffor ;
+    msg.c_bufor_tmp[i]= buffor ;
 
     // }
 }
@@ -102,11 +106,11 @@ void C_connection::c_set_buf(int what)
     case ok:
         for (int i =0 ; i < MAX_MSG_LEN ; i=i+2 )
         {
-            c_bufor_tmp[i]= 1 ;
+            msg.c_bufor_tmp[i]= 1 ;
         }
         for (int i =1 ; i < MAX_MSG_LEN ; i=i+2 )
         {
-            c_bufor_tmp[i]= 0 ;
+            msg.c_bufor_tmp[i]= 0 ;
 
         }
 
@@ -118,7 +122,7 @@ void C_connection::c_set_buf(int what)
 
 bool C_connection::c_analyse_exit()
 {
-    if (c_bufor_tmp[3]==0 && c_bufor_tmp[5]==0 && c_bufor_tmp[4]==-1 && c_bufor_tmp[6]==-1 )
+    if (msg.c_bufor_tmp[3]==0 && msg.c_bufor_tmp[5]==0 && msg.c_bufor_tmp[4]==-1 && msg.c_bufor_tmp[6]==-1 )
     {
         std::cout <<" koniec tego gniazda klienta ";
         std::cout<< "\n bool watek "<< std::endl;                                    // zakoncz ten wątek
@@ -132,71 +136,71 @@ int C_connection::c_analyse()
 {
 
 
-      if ( c_bufor_tmp[1]== 13 && c_bufor_tmp[2]== 13 &&  c_bufor_tmp[3]== 31  )
+      if ( msg.c_bufor_tmp[1]== 13 && msg.c_bufor_tmp[2]== 13 &&  msg.c_bufor_tmp[3]== 31  )
     {
 
-        my_data->server_settings->ID_server = c_bufor_tmp[0];
+        my_data->server_settings->ID_server = msg.c_bufor_tmp[0];
         std::cout << "moj nowy id to "<< my_data->server_settings->ID_server << std::endl;
          c_set_buf( ok);
     }
     //####################################################
-    else if ( c_bufor_tmp[0]==22 && c_bufor_tmp[1]==21 &&  c_bufor_tmp[2]==202 &&  c_bufor_tmp[3]==201)
+    else if ( msg.c_bufor_tmp[0]==22 && msg.c_bufor_tmp[1]==21 &&  msg.c_bufor_tmp[2]==202 &&  msg.c_bufor_tmp[3]==201)
     {
-        c_bufor_tmp[0]=c_bufor_tmp[1] = c_bufor_tmp[2]=c_bufor_tmp[3] =  33 ;
-        c_bufor_tmp[9] = my_data->server_settings->v_delay ;  // jakie opoznienie w odczytywaniu kto jest na wifi
+        msg.c_bufor_tmp[0]=msg.c_bufor_tmp[1] = msg.c_bufor_tmp[2]=msg.c_bufor_tmp[3] =  33 ;
+        msg.c_bufor_tmp[9] = my_data->server_settings->v_delay ;  // jakie opoznienie w odczytywaniu kto jest na wifi
         std::cout << " opoznienie perwsze " << my_data->server_settings->v_delay << std::endl;
-        std::cout << " opoznienie " << c_bufor_tmp[9] << std::endl;
-        c_bufor_tmp[7] = my_data->server_settings->A_MAC.size();;   // ile mamy adresow
+        std::cout << " opoznienie " << msg.c_bufor_tmp[9] << std::endl;
+        msg.c_bufor_tmp[7] = my_data->server_settings->A_MAC.size();;   // ile mamy adresow
 
         for (u_int i =0 ; i < my_data->server_settings->A_MAC.size(); ++i)
         {
-            if(( send( c_socket, c_bufor_tmp, c_max_msg, MSG_DONTWAIT ) ) <= 0 )
+            if(( send( c_socket, msg.char_buf /*c_bufor_tmp*/, c_max_msg, MSG_DONTWAIT ) ) <= 0 )
             {
                 //  perror( "send() ERROR" );
                 break;
             }
 
 
-            if(( recv( c_socket, c_bufor_tmp, c_max_msg, 0 ) ) <= 0 )
+            if(( recv( c_socket, msg.char_buf/*c_bufor_tmp*/, c_max_msg, 0 ) ) <= 0 )
             {
                 // perror( "recv() ERROR" );
                 break;
             }
             c_send_recv_RS232();
-            c_bufor_tmp[0]=  c_bufor_tmp[1]=34;
-            c_bufor_tmp[2] =0 ;
-            c_bufor_tmp[3]=(float)i  ;
+            msg.c_bufor_tmp[0]=  msg.c_bufor_tmp[1]=34;
+            msg.c_bufor_tmp[2] =0 ;
+            msg.c_bufor_tmp[3]=(float)i  ;
 
-            c_bufor_tmp[4] = my_data->server_settings->A_MAC[i].MAC[0];
-            c_bufor_tmp[5] = my_data->server_settings->A_MAC[i].MAC[1];
+            msg.c_bufor_tmp[4] = my_data->server_settings->A_MAC[i].MAC[0];
+            msg.c_bufor_tmp[5] = my_data->server_settings->A_MAC[i].MAC[1];
 
-            c_bufor_tmp[6] = my_data->server_settings->A_MAC[i].MAC[3];
-            c_bufor_tmp[7] = my_data->server_settings->A_MAC[i].MAC[4];
+            msg.c_bufor_tmp[6] = my_data->server_settings->A_MAC[i].MAC[3];
+            msg.c_bufor_tmp[7] = my_data->server_settings->A_MAC[i].MAC[4];
 
-            c_bufor_tmp[8] = my_data->server_settings->A_MAC[i].MAC[6];
-            c_bufor_tmp[9] = my_data->server_settings->A_MAC[i].MAC[7];
+            msg.c_bufor_tmp[8] = my_data->server_settings->A_MAC[i].MAC[6];
+            msg.c_bufor_tmp[9] = my_data->server_settings->A_MAC[i].MAC[7];
 
-            c_bufor_tmp[10] = my_data->server_settings->A_MAC[i].MAC[9];
-            c_bufor_tmp[11] = my_data->server_settings->A_MAC[i].MAC[10];
+            msg.c_bufor_tmp[10] = my_data->server_settings->A_MAC[i].MAC[9];
+            msg.c_bufor_tmp[11] = my_data->server_settings->A_MAC[i].MAC[10];
 
-            c_bufor_tmp[12] = my_data->server_settings->A_MAC[i].MAC[12];
-            c_bufor_tmp[13] = my_data->server_settings->A_MAC[i].MAC[13];
+            msg.c_bufor_tmp[12] = my_data->server_settings->A_MAC[i].MAC[12];
+            msg.c_bufor_tmp[13] = my_data->server_settings->A_MAC[i].MAC[13];
 
-            c_bufor_tmp[14] = my_data->server_settings->A_MAC[i].MAC[15];
-            c_bufor_tmp[15] = my_data->server_settings->A_MAC[i].MAC[16];
+            msg.c_bufor_tmp[14] = my_data->server_settings->A_MAC[i].MAC[15];
+            msg.c_bufor_tmp[15] = my_data->server_settings->A_MAC[i].MAC[16];
 
-            std::cout << " podglad bufora " << (char)c_bufor_tmp [4] << " " << (char)c_bufor_tmp[5]<<std::endl;
+            std::cout << " podglad bufora " << (char)msg.c_bufor_tmp [4] << " " << (char)msg.c_bufor_tmp[5]<<std::endl;
 
         }
     }
     // ############################################3333
 
-      else if (c_bufor_tmp[16]==1001)
+      else if (msg.c_bufor_tmp[16]==1001)
     {
          c_send_recv_MASTER();
     }
 
-      else if (c_bufor_tmp[16]==RS232)
+      else if (msg.c_bufor_tmp[16]==RS232)
     {
         //c_send_recv_master(RS232);
         c_send_recv_RS232();
