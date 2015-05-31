@@ -1,5 +1,8 @@
 #include "c_connection.h"
 #include <iostream>
+using namespace std;
+
+
 
 
 pthread_mutex_t C_connection::mutex_buf = PTHREAD_MUTEX_INITIALIZER;
@@ -8,7 +11,7 @@ pthread_mutex_t C_connection::mutex_who = PTHREAD_MUTEX_INITIALIZER;
 // konstruktor
 C_connection::C_connection (thread_data  *my_data)
 {
-    c_max_msg = MAX_MSG_LEN*sizeof(float);
+    c_max_msg = MAX_MSG_LEN*sizeof(int32_t);
     c_from= my_data->from;
     c_socket= my_data->s_client_sock;
     this -> pointer = &my_data->pointer;
@@ -19,7 +22,7 @@ C_connection::C_connection (thread_data  *my_data)
 
 C_connection::C_connection (thread_data  *my_data, std::string master)
 {
-    c_max_msg = MAX_MSG_LEN*sizeof(float);
+    c_max_msg = MAX_MSG_LEN*sizeof(int32_t);
    // c_from= my_data->from;
    // c_socket= my_data->s_gniazdo_klienta;
     this -> pointer = &my_data->pointer;
@@ -37,6 +40,7 @@ C_connection::~C_connection()
 
 int C_connection::c_send(int para)
 {
+    ChangeEndianness(msg.c_bufor_tmp);
     if(( send( c_socket, msg.char_buf/*c_bufor_tmp*/, c_max_msg, para ) ) <= 0 )
     {
         //perror( "send() ERROR" );
@@ -62,6 +66,7 @@ int C_connection::c_send(std::string command)
 
         }
     }
+    ChangeEndianness(msg.c_bufor_tmp);
     if(( send( c_socket, msg.char_buf /*c_bufor_tmp*/, c_max_msg, 0 ) ) <= 0 )
     {
         //perror( "send() ERROR" );
@@ -77,19 +82,22 @@ int C_connection::c_recv(int para)
         //perror( "recv() ERROR" );
         return -1;
     }
+    ChangeEndianness(msg.c_bufor_tmp);
     for (int i =0 ; i < MAX_MSG_LEN ; ++i)
     {
         std::cout << " " << msg.c_bufor_tmp[i] << " " ;
     }
+    cout << "odebralem \n";
+   // binary(msg.c_bufor_tmp[2]);
     return 0;
 }
 
-float C_connection::c_return(int iterator)
+int32_t C_connection::c_return(int iterator)
 {
     return msg.c_bufor_tmp[iterator];
 }
 
-void C_connection::c_get(float buffor, int i)
+void C_connection::c_get(int32_t buffor, int i)
 {
     //    for (int i =0 ; i < MAX_MSG_LEN ; ++i )
     //    {
@@ -169,7 +177,7 @@ int C_connection::c_analyse()
             c_send_recv_RS232();
             msg.c_bufor_tmp[0]=  msg.c_bufor_tmp[1]=34;
             msg.c_bufor_tmp[2] =0 ;
-            msg.c_bufor_tmp[3]=(float)i  ;
+            msg.c_bufor_tmp[3]=(int32_t)i  ;
 
             msg.c_bufor_tmp[4] = my_data->server_settings->A_MAC[i].MAC[0];
             msg.c_bufor_tmp[5] = my_data->server_settings->A_MAC[i].MAC[1];
@@ -205,6 +213,7 @@ int C_connection::c_analyse()
         //c_send_recv_master(RS232);
         c_send_recv_RS232();
     }
+
     ///// end /////////
 
 

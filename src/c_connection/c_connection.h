@@ -1,6 +1,7 @@
 #ifndef C_CONNECTION_H
 #define C_CONNECTION_H
 #include "../wiadomosc/wiadomosc.h"
+#include "../functions/functions.h"
 #include <unistd.h>
 //#include "global.h"
 
@@ -17,11 +18,11 @@ public:
 
       thread_data   *my_data;
     int c_socket;
-    //float c_bufor_tmp[ MAX_MSG_LEN ];
+    //int32_t c_bufor_tmp[ MAX_MSG_LEN ];
     sockaddr_in c_from;
 
     union conv{
-        float c_bufor_tmp[ MAX_MSG_LEN ];
+        int32_t c_bufor_tmp[ MAX_MSG_LEN ];
         char char_buf[4*MAX_MSG_LEN];
     } msg;
 
@@ -32,8 +33,8 @@ public:
     int c_send(int para);
     int c_send(std::string command);
     int c_recv(int para);
-    float c_return(int iterator);
-    void c_get(float buffor, int i);
+    int32_t c_return(int iterator);
+    void c_get(int32_t buffor, int i);
     void c_send_recv_RS232 ();
     void c_send_recv_MASTER ();
     int c_analyse();

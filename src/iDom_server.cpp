@@ -35,9 +35,9 @@
 //#define FREE 1
 //#define RS232 11
 
-//float bufor[ MAX_MSG_LEN ];
+//int32_t bufor[ MAX_MSG_LEN ];
 //unsigned int who [2]={FREE,FREE};
-int max_msg = MAX_MSG_LEN*sizeof(float);
+int max_msg = MAX_MSG_LEN*sizeof(int32_t);
 
 bool go_while = true;
 //pthread_mutex_t mutex_buf  = PTHREAD_MUTEX_INITIALIZER;
@@ -181,14 +181,14 @@ void *main_thread( void * unused)
     config server_settings;     // strukruta z informacjami z pliku konfigu
     struct sockaddr_in server;
     int v_socket;
-    int max_msg = MAX_MSG_LEN*sizeof(float);
+    int max_msg = MAX_MSG_LEN*sizeof(int32_t);
     thread_data m_data;
     thread_data node_data; // przekazywanie do watku
     pthread_t thread_array[MAX_CONNECTION]={0,0,0,0,0,0,0,0,0,0};
     pthread_t rs232_thread_id;
   //  int socket_arry[MAX_CONNECTION];   //cyniu
     unsigned int who[2]={FREE, FREE};
-    float bufor[ MAX_MSG_LEN ];
+    int32_t bufor[ MAX_MSG_LEN ];
     std::cout << "bede parsowac \n";
     server_settings  =  read_config ( "/etc/config/iDom_server"    );
 
@@ -342,7 +342,7 @@ void *main_thread( void * unused)
                 {
                     std::cout<<"za duzo kientow\n";
 
-                    float bufor_tmp[ MAX_MSG_LEN ];
+                    int32_t bufor_tmp[ MAX_MSG_LEN ];
 
 
                     if(( recv( v_sock_ind, bufor_tmp, max_msg, 0 ) ) <= 0 )

@@ -20,7 +20,7 @@
 
 struct s_pointer{
     unsigned int *ptr_who;
-    float *ptr_buf;
+    int32_t *ptr_buf;
 };
 
 
@@ -50,7 +50,7 @@ struct thread_data_rs232{
 
 };
 
-int parser_bufor ( float bufor_tmp[]);
+int parser_bufor ( int32_t bufor_tmp[]);
 
 
 
