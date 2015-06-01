@@ -1,6 +1,6 @@
 #include "c_connection.h"
 #include <iostream>
-using namespace std;
+//using namespace std;
 
 
 
@@ -87,7 +87,7 @@ int C_connection::c_recv(int para)
     {
         std::cout << " " << msg.c_bufor_tmp[i] << " " ;
     }
-    cout << "odebralem \n";
+    std::cout << "odebralem \n";
    // binary(msg.c_bufor_tmp[2]);
     return 0;
 }
@@ -146,8 +146,9 @@ int C_connection::c_analyse()
 
       if ( msg.c_bufor_tmp[1]== 13 && msg.c_bufor_tmp[2]== 13 &&  msg.c_bufor_tmp[3]== 31  )
     {
-
+        pthread_mutex_lock(&mutex_who);
         my_data->server_settings->ID_server = msg.c_bufor_tmp[0];
+        pthread_mutex_unlock(&mutex_who);
         std::cout << "moj nowy id to "<< my_data->server_settings->ID_server << std::endl;
          c_set_buf( ok);
     }
@@ -203,7 +204,7 @@ int C_connection::c_analyse()
     }
     // ############################################3333
 
-      else if (msg.c_bufor_tmp[16]==1001)
+      else if (msg.c_bufor_tmp[16]==my_data->server_settings->ID_server || msg.c_bufor_tmp[16]== -1001 )
     {
          c_send_recv_MASTER();
     }
@@ -229,157 +230,17 @@ int C_connection::c_analyse()
 void C_connection::c_send_recv_MASTER()
 {
 
-
-    while (1)
-    {
-        usleep(500);
-        std::cout << " sprawdzam czy hest FREE " <<pointer->ptr_who[0] <<" \n";
-        pthread_mutex_lock(&mutex_who);
-        if (  pointer->ptr_who[0] ==FREE )
-        {
-
-            pthread_mutex_lock(&mutex_buf);
-            for (int i =0 ; i < MAX_MSG_LEN ; ++i )
-            {
-                // bufor[i] =  c_return(i);
-                pointer->ptr_buf[i]= c_return(i);
-
-            }
-            std::cout <<" po kopiowaniu \n";
-            pthread_mutex_unlock(&mutex_buf);
-
-            //who[0]= RS232;
-            pointer->ptr_who[0] = my_data->server_settings->ID_server;
-            //who[1]=  pthread_self ();
-            pointer->ptr_who[1] =  pthread_self ();
-            pthread_mutex_unlock(&mutex_who);
-            break;
-        }
-        else
-        {
-            std::cout <<" szukma FREE "<< pthread_self ()  << std::endl;
-            pthread_mutex_unlock(&mutex_who);
-
-            continue;
-        }
-        pthread_mutex_unlock(&mutex_who);
-    } // end wfile
-
-
-
-    while (1)
-    {
-        usleep(500);
-        // std::cout << " sprawdzam czy jest moj watek  " << pthread_self ()<< std::endl;
-        pthread_mutex_lock(&mutex_who);
-        if (pointer->ptr_who[0] ==pthread_self () )
-        {
-
-            pthread_mutex_lock(&mutex_buf);
-            for (int i =0 ; i < MAX_MSG_LEN ; ++i )
-            {
-                c_get(pointer->ptr_buf[i],i);
-
-            }
-
-
-            std::cout <<" po kopiowaniu \n";
-            pthread_mutex_unlock(&mutex_buf);
-
-            //who[0]= FREE;
-            pointer->ptr_who[0]= FREE;
-            pthread_mutex_unlock(&mutex_who);
-            break;
-        }
-        else
-        {
-            std::cout <<" nie moje "<< pthread_self ()  << std::endl;
-            pthread_mutex_unlock(&mutex_who);
-
-            continue;
-        }
-        pthread_mutex_unlock(&mutex_who);
-    } // end while
+    c_write_buf(&my_data->server_settings->ID_server);
+    c_read_buf(pthread_self());
 
 }
 
 
 
 void C_connection::c_send_recv_RS232()
-{
-
-
-    while (1)
-    {
-        usleep(500);
-        std::cout << " sprawdzam czy hest FREE " <<pointer->ptr_who[0] <<" \n";
-        pthread_mutex_lock(&mutex_who);
-        if (  pointer->ptr_who[0] ==FREE )
-        {
-
-            pthread_mutex_lock(&mutex_buf);
-            for (int i =0 ; i < MAX_MSG_LEN ; ++i )
-            {
-                // bufor[i] =  c_return(i);
-                pointer->ptr_buf[i]= c_return(i);
-
-            }
-            std::cout <<" po kopiowaniu \n";
-            pthread_mutex_unlock(&mutex_buf);
-
-            //who[0]= RS232;
-            pointer->ptr_who[0] = RS232;
-            //who[1]=  pthread_self ();
-            pointer->ptr_who[1] =  pthread_self ();
-            pthread_mutex_unlock(&mutex_who);
-            break;
-        }
-        else
-        {
-            std::cout <<" szukma FREE "<< pthread_self ()  << std::endl;
-            pthread_mutex_unlock(&mutex_who);
-
-            continue;
-        }
-        pthread_mutex_unlock(&mutex_who);
-    } // end wfile
-
-
-
-    while (1)
-    {
-        usleep(500);
-        // std::cout << " sprawdzam czy jest moj watek  " << pthread_self ()<< std::endl;
-        pthread_mutex_lock(&mutex_who);
-        if (pointer->ptr_who[0] ==pthread_self () )
-        {
-
-            pthread_mutex_lock(&mutex_buf);
-            for (int i =0 ; i < MAX_MSG_LEN ; ++i )
-            {
-                c_get(pointer->ptr_buf[i],i);
-
-            }
-
-
-            std::cout <<" po kopiowaniu \n";
-            pthread_mutex_unlock(&mutex_buf);
-
-            //who[0]= FREE;
-            pointer->ptr_who[0]= FREE;
-            pthread_mutex_unlock(&mutex_who);
-            break;
-        }
-        else
-        {
-            std::cout <<" nie moje "<< pthread_self ()  << std::endl;
-            pthread_mutex_unlock(&mutex_who);
-
-            continue;
-        }
-        pthread_mutex_unlock(&mutex_who);
-    } // end while
-
+{   int test = RS232;
+    c_write_buf(&test);
+    c_read_buf(pthread_self());
 }
 
 void C_connection::start_master ()

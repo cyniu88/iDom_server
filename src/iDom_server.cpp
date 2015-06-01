@@ -51,7 +51,7 @@ void *Send_Recieve_rs232_thread (void *przekaz){
 
     data_rs232 = (thread_data_rs232*)przekaz;
     serialib port_arduino;   // obiekt port rs232
-    std::cout << "otwarcie portu " << (int)port_arduino.Open(data_rs232->portRS232.c_str(), atoi( data_rs232->BaudRate.c_str()))<<std::endl;
+    std::cout << "otwarcie portu RS232" << (int)port_arduino.Open(data_rs232->portRS232.c_str(), atoi( data_rs232->BaudRate.c_str()))<<std::endl;
     std::cout << "w buforze jest bajtow " << port_arduino.Peek() << std::endl;
     std::cout << " who ma " << data_rs232->pointer.ptr_who[0]<< std::endl;
 
@@ -65,13 +65,12 @@ void *Send_Recieve_rs232_thread (void *przekaz){
             pthread_mutex_lock(&C_connection::mutex_buf);
 
             std::cout<<"  mutex rs232 start \n";
-//            for (int i =0 ; i < MAX_MSG_LEN ; ++i )
-//            {
+            {
 
-//                //bufor[i]+=1;
-//                data_rs232->pointer.ptr_buf[i]+=1;
-//                //   port_arduino.WriteChar(bufor[i]);
-//            }
+                //bufor[i]+=1;
+                // data_rs232->pointer.ptr_buf[i]+=1;
+                //   port_arduino.WriteChar(bufor[i]);
+             }
 
             for (int i =0 ; i < MAX_MSG_LEN ; ++i )
             {
