@@ -19,7 +19,7 @@ void C_connection::c_write_buf(int *to){
                 pointer->ptr_buf[i]= c_return(i);
 
             }
-            std::cout <<" po kopiowaniu \n";
+            //std::cout <<" po kopiowaniu \n";
             pthread_mutex_unlock(&mutex_buf);
 
             //who[0]= RS232;
@@ -37,7 +37,7 @@ void C_connection::c_write_buf(int *to){
             continue;
         }
         pthread_mutex_unlock(&mutex_who);
-    } // end wfile
+    } // end while
 
 }
 
@@ -60,7 +60,7 @@ void C_connection::c_read_buf(int c_pthread_self)
 
             }
 
-            std::cout <<" po kopiowaniu \n";
+            //std::cout <<" po kopiowaniu \n";
             pthread_mutex_unlock(&mutex_buf);
 
             //who[0]= FREE;
