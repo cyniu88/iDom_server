@@ -108,7 +108,7 @@ config read_config  ( const char* file_path    )
         {
            address_another_servers temp_a_node;
             temp_a_node.id=atoi( v_value.c_str());
-            std::cout << " id noda z v_valuei " << v_value <<std::endl;
+           // std::cout << " id noda z v_valuei " << v_value <<std::endl;
             variable="";
             for (unsigned int i=0 ; i< content.size();++i)
             {
@@ -120,7 +120,7 @@ config read_config  ( const char* file_path    )
                     {
 
                         variable.push_back(content.at(i));
-                         std::cout << " jestem w while   "<< content.at(i) <<std::endl;
+                        // std::cout << " jestem w while   "<< content.at(i) <<std::endl;
                         ++i;
                     }
                     break;
