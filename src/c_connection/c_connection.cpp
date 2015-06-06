@@ -4,7 +4,6 @@
 
 
 
-
 pthread_mutex_t C_connection::mutex_buf = PTHREAD_MUTEX_INITIALIZER;
 
 pthread_mutex_t C_connection::mutex_who = PTHREAD_MUTEX_INITIALIZER;
@@ -16,26 +15,30 @@ C_connection::C_connection (thread_data  *my_data)
     c_socket= my_data->s_client_sock;
     this -> pointer = &my_data->pointer;
     this -> my_data = my_data;
-    std::cout << "kostruuuje obiekt do komunikacji  obiekt " <<  std::endl;
-
+    log_file_mutex.mutex_lock();
+    log_file_cout << INFO<< " konstruuje nowy obiekt do komunikacj " <<  std::endl;
+    log_file_mutex.mutex_unlock();
 }
 
 C_connection::C_connection (thread_data  *my_data, std::string master)
 {
     c_max_msg = MAX_MSG_LEN*sizeof(int32_t);
-   // c_from= my_data->from;
-   // c_socket= my_data->s_gniazdo_klienta;
+    // c_from= my_data->from;
+    // c_socket= my_data->s_gniazdo_klienta;
     this -> pointer = &my_data->pointer;
     this -> my_data = my_data;
-    std::cout << "kostruuuje obiekt do komunikacji  obiekt " <<  std::endl;
-
+    log_file_mutex.mutex_lock();
+    log_file_cout << INFO<< " konstruuje nowy obiekt do komunikacj - master" <<  std::endl;
+    log_file_mutex.mutex_unlock();
 }
 
 // destruktor
 C_connection::~C_connection()
 {
     shutdown( c_socket, SHUT_RDWR );
-    std::cout << "koniec komunikacji kasuje obiekt " <<  std::endl;
+    log_file_mutex.mutex_lock();
+    log_file_cout << INFO<< " koniec komunikacji - kasuje obiekt" <<  std::endl;
+    log_file_mutex.mutex_unlock();
 }
 
 int C_connection::c_send(int para)
@@ -46,7 +49,7 @@ int C_connection::c_send(int para)
         //perror( "send() ERROR" );
         return -1;
     }
-    std::cout << "wyslalem \n";
+
     return 0;
 }
 
@@ -70,6 +73,9 @@ int C_connection::c_send(std::string command)
     if(( send( c_socket, msg.char_buf /*c_bufor_tmp*/, c_max_msg, 0 ) ) <= 0 )
     {
         //perror( "send() ERROR" );
+        log_file_mutex.mutex_lock();
+        log_file_cout << ERROR << " Send error" <<   std::endl;
+        log_file_mutex.mutex_unlock();
         return -1;
     }
     return 0;
@@ -80,6 +86,9 @@ int C_connection::c_recv(int para)
     if(( recv( c_socket, msg.char_buf /*c_bufor_tmp*/, c_max_msg, para ) ) <= 0 )
     {
         //perror( "recv() ERROR" );
+        log_file_mutex.mutex_lock();
+        log_file_cout << ERROR << " recv() error" <<   std::endl;
+        log_file_mutex.mutex_unlock();
         return -1;
     }
     ChangeEndianness(msg.c_bufor_tmp);
@@ -87,8 +96,8 @@ int C_connection::c_recv(int para)
     {
         std::cout << " " << msg.c_bufor_tmp[i] << " " ;
     }
-    std::cout << "odebralem \n";
-   // binary(msg.c_bufor_tmp[2]);
+    //std::cout << "odebralem \n";
+    // binary(msg.c_bufor_tmp[2]);
     return 0;
 }
 
@@ -132,8 +141,7 @@ bool C_connection::c_analyse_exit()
 {
     if (msg.c_bufor_tmp[3]==0 && msg.c_bufor_tmp[5]==0 && msg.c_bufor_tmp[4]==-1 && msg.c_bufor_tmp[6]==-1 )
     {
-        std::cout <<" koniec tego gniazda klienta ";
-        std::cout<< "\n bool watek "<< std::endl;                                    // zakoncz ten wątek
+                                            // zakoncz ten wątek
         return false;
     }
     return true;
@@ -144,21 +152,27 @@ int C_connection::c_analyse()
 {
 
 
-      if ( msg.c_bufor_tmp[1]== 13 && msg.c_bufor_tmp[2]== 13 &&  msg.c_bufor_tmp[3]== 31  )
+    if ( msg.c_bufor_tmp[1]== 13 && msg.c_bufor_tmp[2]== 13 &&  msg.c_bufor_tmp[3]== 31  )
     {
         pthread_mutex_lock(&mutex_who);
         my_data->server_settings->ID_server = msg.c_bufor_tmp[0];
         pthread_mutex_unlock(&mutex_who);
-        std::cout << "moj nowy id to "<< my_data->server_settings->ID_server << std::endl;
-         c_set_buf( ok);
+        log_file_mutex.mutex_lock();
+        log_file_cout << INFO << "moj nowy id to "<< my_data->server_settings->ID_server << std::endl;
+        log_file_mutex.mutex_unlock();
+
+        c_set_buf( ok);
     }
     //####################################################
     else if ( msg.c_bufor_tmp[0]==22 && msg.c_bufor_tmp[1]==21 &&  msg.c_bufor_tmp[2]==202 &&  msg.c_bufor_tmp[3]==201)
     {
         msg.c_bufor_tmp[0]=msg.c_bufor_tmp[1] = msg.c_bufor_tmp[2]=msg.c_bufor_tmp[3] =  33 ;
         msg.c_bufor_tmp[9] = my_data->server_settings->v_delay ;  // jakie opoznienie w odczytywaniu kto jest na wifi
-        std::cout << " opoznienie perwsze " << my_data->server_settings->v_delay << std::endl;
-        std::cout << " opoznienie " << msg.c_bufor_tmp[9] << std::endl;
+
+        log_file_mutex.mutex_lock();
+        log_file_cout << INFO << " opoznienie perwsze " << my_data->server_settings->v_delay << "\n"<<   " zmieniam na " << msg.c_bufor_tmp[9] << std::endl;
+        log_file_mutex.mutex_unlock();
+
         msg.c_bufor_tmp[7] = my_data->server_settings->A_MAC.size();;   // ile mamy adresow
 
         for (u_int i =0 ; i < my_data->server_settings->A_MAC.size(); ++i)
@@ -204,12 +218,12 @@ int C_connection::c_analyse()
     }
     // ############################################3333
 
-      else if (msg.c_bufor_tmp[16]==my_data->server_settings->ID_server || msg.c_bufor_tmp[16]== -1001 )
+    else if (msg.c_bufor_tmp[16]==my_data->server_settings->ID_server || msg.c_bufor_tmp[16]== -1001 )
     {
-         c_send_recv_MASTER();
+        c_send_recv_MASTER();
     }
 
-      else if (msg.c_bufor_tmp[16]==RS232)
+    else if (msg.c_bufor_tmp[16]==RS232)
     {
         //c_send_recv_master(RS232);
         c_send_recv_RS232();

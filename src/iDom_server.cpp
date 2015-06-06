@@ -1,45 +1,5 @@
-#include <iostream>
-#include <fstream>
-#include <strings.h>
-#include <string>
-#include <cstdlib>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
+#include "iDom_server.h"
 
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <sys/fcntl.h>
-#include <unistd.h>
-#include <errno.h>
-#include <signal.h>
-#include <time.h>
-// MOJE BIBLIOTEKI
-
-#include "serialib/serialib.h"
-#include "parser/parser.hpp"
-#include "wiadomosc/wiadomosc.h"
-#include "c_connection/c_connection.h"
-
-
-
-#include "functions/functions.h"
-//#include "global.h"
-
-//#define MAX_MSG_LEN 16
-//#define MAX_CONNECTION 10
-//#define FREE 1
-//#define RS232 11
-
-//int32_t bufor[ MAX_MSG_LEN ];
-//unsigned int who [2]={FREE,FREE};
-int max_msg = MAX_MSG_LEN*sizeof(int32_t);
-
-bool go_while = true;
 
 
 
@@ -49,9 +9,11 @@ void *Send_Recieve_rs232_thread (void *przekaz){
 
     data_rs232 = (thread_data_rs232*)przekaz;
     serialib port_arduino;   // obiekt port rs232
-    std::cout << "otwarcie portu RS232 " << (int)port_arduino.Open(data_rs232->portRS232.c_str(), atoi( data_rs232->BaudRate.c_str()))<<std::endl;
-    std::cout << "w buforze jest bajtow " << port_arduino.Peek() << std::endl;
 
+    log_file_mutex.mutex_lock();
+    log_file_cout << "otwarcie portu RS232 " << (int)port_arduino.Open(data_rs232->portRS232.c_str(), atoi( data_rs232->BaudRate.c_str()))<<std::endl;
+    log_file_cout << "w buforze jest bajtow " << port_arduino.Peek() << std::endl;
+     log_file_mutex.mutex_unlock();
 
 
     while (1)
@@ -187,14 +149,20 @@ void *main_thread( void * unused)
 
     unsigned int who[2]={FREE, FREE};
     int32_t bufor[ MAX_MSG_LEN ];
-    std::cout << "start programu "<< data << std::endl;
+
+
+    log_file_mutex.mutex_lock();
+    log_file_cout << "\n*****************************************************************\n*****************************************************************\n  "<<  " \t\t\t\t\t start programu " << std::endl;
+    log_file_mutex.mutex_unlock();
     server_settings  =  read_config ( "/etc/config/iDom_server"    );
 
-    std::cout << "ID servera "<< server_settings.ID_server << std::endl;
-    std::cout << server_settings.portRS232 << std::endl;
-    std::cout << server_settings.BaudRate << std::endl;
-    std::cout << server_settings.PORT << std::endl;
-    std::cout << server_settings.SERVER_IP << " serwer ip " <<std::endl;
+    log_file_mutex.mutex_lock();
+    log_file_cout << INFO  << "ID serwera\t"<< server_settings.ID_server << std::endl;
+    log_file_cout << INFO  << "PortRS232\t"<< server_settings.portRS232 << std::endl;
+    log_file_cout << INFO  << "BaudRate RS232\t"<< server_settings.BaudRate << std::endl;
+    log_file_cout << INFO  << "port TCP \t"<< server_settings.PORT << std::endl;
+    log_file_cout << INFO  << "serwer ip \t"<< server_settings.SERVER_IP  <<std::endl;
+    log_file_cout << INFO  << "dodatkowe NODY w sieci:\n"  <<std::endl;
 
 //    for (u_int i=0;i<server_settings.A_MAC.size();++i){
 //        std::cout << server_settings.A_MAC[i].name_MAC<<" "<< server_settings.A_MAC[i].MAC<<" " << server_settings.A_MAC[i].option1 <<
@@ -205,10 +173,10 @@ void *main_thread( void * unused)
 //                     " " << server_settings.A_MAC[i].option6<<std::endl;
 //    }
     for (u_int i=0;i<server_settings.AAS.size();++i){
-        std::cout << server_settings.AAS[i].id<<" "<< server_settings.AAS[i].SERVER_IP <<std::endl;
+        log_file_cout << INFO << server_settings.AAS[i].id<<" "<< server_settings.AAS[i].SERVER_IP <<std::endl;
     }
 
-    std::cout << " \n";
+    log_file_cout << INFO << " \n" << std::endl;
 
     // int go = atoi(  server_settings.BaudRate.c_str());
 
@@ -218,8 +186,8 @@ void *main_thread( void * unused)
     data_rs232.pointer.ptr_buf=bufor;
     data_rs232.pointer.ptr_who=who;
     pthread_create(&rs232_thread_id,NULL,&Send_Recieve_rs232_thread,&data_rs232 );
-    std::cout << "-----------------------------------------------\n";
-
+    log_file_cout << INFO << "-----------------------------------------------"<< std::endl;
+    log_file_mutex.mutex_unlock();
     int SERVER_PORT = atoi(server_settings.PORT.c_str());
     server_settings.SERVER_IP = conv_dns(server_settings.SERVER_IP);
     const char *SERVER_IP = server_settings.SERVER_IP.c_str();
@@ -234,8 +202,9 @@ void *main_thread( void * unused)
         node_data.pointer.ptr_who=who;
 
         pthread_create (&thread_array[3], NULL,&f_serv_con_node ,&node_data);
-        std::cout << " watek wystartowal dla NODA MASTERA "<< thread_array[3] << std::endl;
-
+        log_file_mutex.mutex_lock();
+        log_file_cout << INFO << " watek wystartowal dla NODA MASTERA "<< thread_array[3] << std::endl;
+        log_file_mutex.mutex_unlock();
         pthread_detach( thread_array[3] );
 
 
@@ -243,7 +212,10 @@ void *main_thread( void * unused)
 
     else
     {
-         std::cout << "NIEEE startuje noda do polaczen z innym \n";
+        log_file_mutex.mutex_lock();
+        log_file_cout << INFO << "NIE startuje NODA MASTERA do polaczen z innymi " << std::endl;
+        log_file_mutex.mutex_unlock();
+
     }
 
     bzero( & server, sizeof( server ) );
@@ -276,12 +248,19 @@ void *main_thread( void * unused)
     socklen_t len = sizeof( server );
     if( bind( v_socket,( struct sockaddr * ) & server, len ) < 0 )
     {
+
+        log_file_mutex.mutex_lock();
+        log_file_cout << CRITICAL << "BIND problem: " <<  strerror(  errno )<< std::endl;
+        log_file_mutex.mutex_unlock();
         perror( "bind() ERROR" );
         exit( - 1 );
     }
 
     if( listen( v_socket, MAX_CONNECTION ) < 0 )
     {
+        log_file_mutex.mutex_lock();
+        log_file_cout << CRITICAL << "Listen problem: " <<  strerror(  errno )<< std::endl;
+        log_file_mutex.mutex_unlock();
         perror( "listen() ERROR" );
         exit( - 1 );
     }
@@ -310,10 +289,6 @@ void *main_thread( void * unused)
         ////////////////////////   jest połacznie   wiec wstawiamy je  do nowego watku  i  umieszczamy id watku w tablicy  w pierwszym wolnym miejscy ////////////////////
         for (int con_counter=0; con_counter< MAX_CONNECTION; ++con_counter)
         {
-            //std::cout << "                           iteracja "<<con_counter<<std::endl;
-           // std::cout << "id watku "<< thread_array[con_counter]<< std::endl;
-            // std::cout <<  " stan watku " <<  pthread_detach( thread_array[con_counter] )<< std::endl;
-
             if ( thread_array[con_counter]==0 || pthread_kill(thread_array[con_counter], 0) == ESRCH )   // jesli pozycja jest wolna (0)  to wstaw tam  jesli jest zjęta wyslij sygnal i sprawdz czy waŧek żyje ///
 
             {
@@ -327,15 +302,21 @@ void *main_thread( void * unused)
                     m_data.pointer.ptr_who=who;
 
                     pthread_create (&thread_array[con_counter], NULL,&Server_connectivity_thread,&m_data);
-                    std::cout << " watek wystartowal  "<< thread_array[con_counter] << std::endl;
-                    std::cout <<  " taki watek " <<  pthread_detach( thread_array[con_counter] )<< std::endl;
+
+                    log_file_mutex.mutex_lock();
+                    log_file_cout << INFO << " watek wystartowal  "<< thread_array[con_counter] << std::endl;
+                    log_file_mutex.mutex_unlock();
+
                     pthread_detach( thread_array[con_counter] );
                     break;
 
                 }
                 else
                 {
-                    std::cout<<"za duzo kientow\n";
+
+                    log_file_mutex.mutex_lock();
+                    log_file_cout << INFO << " za duzo klientow "<< thread_array[con_counter] << std::endl;
+                    log_file_mutex.mutex_unlock();
 
                     int32_t bufor_tmp[ MAX_MSG_LEN ];
 
@@ -369,7 +350,10 @@ void *main_thread( void * unused)
         }
     } // while
 
-    std::cout << "KOOOOONIEC !!!! \n";
+    log_file_mutex.mutex_lock();
+    log_file_cout << INFO << " koniec programu  "<<   std::endl;
+    log_file_mutex.mutex_unlock();
+
     sleep(2);
     //std::cout << " koniec gniazda ma wynik : "<< shutdown( v_socket, SHUT_RDWR );
 
@@ -387,21 +371,14 @@ int main()
 {
     pthread_mutex_init(&C_connection::mutex_buf, NULL);
     pthread_mutex_init(&C_connection::mutex_who, NULL);
-    // pthread_mutex_init(&mutex_exit, NULL);
+    pthread_mutex_init(&Logger::mutex_log, NULL);
     pthread_t  main_th;
     pthread_create (&main_th, NULL,&main_thread,NULL);
 
-
-
-
-
     pthread_join(main_th ,NULL);
+    pthread_mutex_destroy(&Logger::mutex_log);
     pthread_mutex_destroy(&C_connection::mutex_buf);
     pthread_mutex_destroy(&C_connection::mutex_who);
-
-
-
-    std::cout<<"\nwychodze\n";
 
     return 0;
 }

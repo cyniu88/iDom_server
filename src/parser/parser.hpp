@@ -2,7 +2,9 @@
 #define PARSER_H_
 #include <string>
 #include <vector>
-
+#include "../wiadomosc/wiadomosc.h"
+#include "../logger/logger.hpp"
+extern Logger log_file_mutex;
 struct addresses_mac{
     std::string name_MAC;
     std::string MAC;

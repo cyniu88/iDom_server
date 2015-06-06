@@ -35,7 +35,7 @@ define Package/iDom_server
 	SECTION:=utils
 	CATEGORY:=Utilities
 	TITLE:=iDom_server -- moj inteligentny dom openwrt
-	DEPENDS:=+libstdcpp 
+	DEPENDS:=+libstdcpp +libpthread 
 #   DESCRIPTION:=\
 #   If you can't figure out what this program does, \\\
 #   you're probably brain-dead and need immediate \\\
