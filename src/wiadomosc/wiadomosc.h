@@ -8,13 +8,16 @@
 
 
 #include "../parser/parser.hpp"
-
+#include "../logger/logger.hpp"
 
 #define MAX_MSG_LEN 18
 #define MAX_CONNECTION 10
 #define FREE 1
 #define RS232 11
 #define ok     0
+
+#define log_file_cout  f_log //std::cout   zmien f_log na std::cout  i bedzie wypisywac na ekran
+#define log_file_mutex f_log
 
 
 

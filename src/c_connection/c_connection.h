@@ -2,10 +2,10 @@
 #define C_CONNECTION_H
 #include "../wiadomosc/wiadomosc.h"
 #include "../functions/functions.h"
+#include "../logger/logger.hpp"
 #include <unistd.h>
 //#include "global.h"
-
-
+ extern Logger log_file_mutex;
 class C_connection
 {
 
@@ -27,6 +27,7 @@ public:
     } msg;
 
     int c_max_msg  ;
+
     static pthread_mutex_t mutex_buf ;// = PTHREAD_MUTEX_INITIALIZER;
     static pthread_mutex_t mutex_who ;//= PTHREAD_MUTEX_INITIALIZER;
     struct s_pointer *pointer;
@@ -49,6 +50,8 @@ public:
     // metody dla noda
      void c_start_master();
     void c_recv_send_master();
+
+
 
 };
 

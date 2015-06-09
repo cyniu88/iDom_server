@@ -22,7 +22,10 @@ config read_config  ( const char* file_path    )
     config_file.open(file_path, std::ios::in  );
     if( config_file.good() == false )
     {
-        std::cout << "Brak pliku konfiguracyjnego" << std::endl;
+        log_file_mutex.mutex_lock();
+        log_file_cout << "Brak pliku konfiguracyjnego" << std::endl;
+        log_file_mutex.mutex_unlock();
+
         return v_set;
     }
 
