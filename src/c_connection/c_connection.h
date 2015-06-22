@@ -6,6 +6,7 @@
 #include <unistd.h>
 //#include "global.h"
  extern Logger log_file_mutex;
+ extern char * _logfile;
 class C_connection
 {
 
@@ -51,7 +52,8 @@ public:
      void c_start_master();
     void c_recv_send_master();
 
-
+     // wysylanie loga
+    void l_send_log();
 
 };
 

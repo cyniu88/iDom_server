@@ -20,7 +20,7 @@ include $(TOPDIR)/rules.mk
 
 # Name and release number of this package
 PKG_NAME:=iDom_server
-PKG_RELEASE:=PA8.3_05-06-2015
+PKG_RELEASE:=PA8.5_22-06-2015
 
 # This specifies the directory where we're going to build the program.
 # The root build directory, $(BUILD_DIR), is by default the build_mipsel

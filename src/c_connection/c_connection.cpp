@@ -92,10 +92,10 @@ int C_connection::c_recv(int para)
         return -1;
     }
     ChangeEndianness(msg.c_bufor_tmp);
-    for (int i =0 ; i < MAX_MSG_LEN ; ++i)
-    {
-        std::cout << " " << msg.c_bufor_tmp[i] << " " ;
-    }
+//    for (int i =0 ; i < MAX_MSG_LEN ; ++i)
+//    {
+//        std::cout << " " << msg.c_bufor_tmp[i] << " " ;
+//    }
     //std::cout << "odebralem \n";
     // binary(msg.c_bufor_tmp[2]);
     return 0;
@@ -130,6 +130,10 @@ void C_connection::c_set_buf(int what)
             msg.c_bufor_tmp[i]= 0 ;
 
         }
+        break;
+      case -94:
+        msg.c_bufor_tmp[0]=-94;
+        break;
 
     default:
 
@@ -227,6 +231,17 @@ int C_connection::c_analyse()
     {
         //c_send_recv_master(RS232);
         c_send_recv_RS232();
+    }
+
+    else if (msg.c_bufor_tmp[0] == 55 && msg.c_bufor_tmp[1]==55)
+
+    {
+        for (int i =0 ; i<4*MAX_MSG_LEN ; ++i)
+        {
+            msg.char_buf[i]=32;
+        }
+        l_send_log();
+
     }
 
     ///// end /////////

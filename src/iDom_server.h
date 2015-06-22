@@ -29,9 +29,10 @@
 #include "functions/functions.h"
 #include "logger/logger.hpp"
 
+char *  _logfile  = "/tmp/iDom_log.log";
 
-Logger log_file_mutex("/tmp/iDom_log.log");
-Logger test("/tmp/test.log");
+Logger log_file_mutex(_logfile);
+
 
 
 int max_msg = MAX_MSG_LEN*sizeof(int32_t);
